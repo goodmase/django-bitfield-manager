@@ -35,23 +35,11 @@ Add it to your `INSTALLED_APPS`:
         ...
     )
 
-Add bitfield_manager's URL patterns:
-
-.. code-block:: python
-
-    from bitfield_manager import urls as bitfield_manager_urls
-
-
-    urlpatterns = [
-        ...
-        url(r'^', include(bitfield_manager_urls)),
-        ...
-    ]
 
 Features
 --------
 
-* TODO
+* Allows for automatic bitfield management for Django Models
 
 Running Tests
 -------------

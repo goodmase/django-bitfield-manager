@@ -23,6 +23,7 @@ class ParentTestModel(BaseTestModel):
 
     name = models.CharField(max_length=255)
     status = models.BigIntegerField()
+    secondary_status = models.BigIntegerField()
 
     def __str__(self):
         return "name: %s status: %i" % (self.name, self.status)
@@ -46,7 +47,8 @@ class ChildTestModel3(BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels3')
 
     class BitfieldMeta:
-        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD3)]
+        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD3),
+                         ('parent', 'secondary_status', ParentTestModel.STATUS_CHILD3)]
 
 
 class Unrelated(BaseTestModel):

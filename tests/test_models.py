@@ -13,7 +13,7 @@ from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, Chil
 
 class TestWithUnrelatedChildModels(TestCase):
     def setUp(self):
-        p1 = ParentTestModel.objects.create(name='parent1', status=0)
+        p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
         ChildTestModel1.objects.create(parent=p1)
         Unrelated.objects.create(parent=p1)
 
@@ -24,10 +24,22 @@ class TestWithUnrelatedChildModels(TestCase):
         p1.force_status_refresh()
         self.assertEqual(p1.status, 1)
 
+
+class TestWithMultipleParentStatus(TestCase):
+    def setUp(self):
+        p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
+        ChildTestModel1.objects.create(parent=p1)
+        ChildTestModel3.objects.create(parent=p1)
+
+    def test_secondary(self):
+        p1 = ParentTestModel.objects.get(name='parent1')
+        self.assertEqual(p1.status, 5)
+        self.assertEqual(p1.secondary_status, 4)
+
 class TestBitfieldMultiForeignKeys(TestCase):
     def setUp(self):
-        p1 = ParentTestModel.objects.create(name='parent1', status=0)
-        ParentTestModel.objects.create(name='parent2', status=0)
+        p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
+        ParentTestModel.objects.create(name='parent2', status=0, secondary_status=0)
         for x in range(2):
             ChildTestModel1.objects.create(parent=p1)
         ChildTestModel2.objects.create(parent=p1)
@@ -80,8 +92,8 @@ class TestBitfieldMultiForeignKeys(TestCase):
 
 class TestBitfieldManager(TestCase):
     def setUp(self):
-        p1 = ParentTestModel.objects.create(name='parent1', status=0)
-        ParentTestModel.objects.create(name='parent2', status=0)
+        p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
+        ParentTestModel.objects.create(name='parent2', status=0, secondary_status=0)
         ChildTestModel1.objects.create(parent=p1)
         ChildTestModel3.objects.create(parent=p1)
 

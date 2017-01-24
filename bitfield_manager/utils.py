@@ -31,3 +31,10 @@ def get_all_related_bitfield_models(model):
         not (not (f.one_to_many or f.one_to_one) or not f.auto_created) and not f.concrete and hasattr(f.related_model,
                                                                                                        'BitfieldMeta')
         ]
+
+
+def get_parent_model(instance, key_string):
+    keys = key_string.split('.')
+    for key in keys:
+        instance = getattr(instance, key)
+    return instance

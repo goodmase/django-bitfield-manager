@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from bitfield_manager import utils
 
 
+
 @receiver(post_save)
 def bitfield_post_save(sender, instance, **kwargs):
     if not hasattr(sender, 'BitfieldMeta'):
@@ -10,7 +11,7 @@ def bitfield_post_save(sender, instance, **kwargs):
     parent_models = instance.BitfieldMeta.parent_models
 
     for parent, field, flag in parent_models:
-        parent_model = getattr(instance, parent)
+        parent_model = utils.get_parent_model(instance, parent)
         status_value = getattr(parent_model, field)
         if not utils.is_flag_field_set_for_status(status_value, flag):
             status_value = utils.set_flag_field_for_status(status_value, flag)

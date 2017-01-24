@@ -20,6 +20,7 @@ class ParentTestModel(BaseTestModel):
     STATUS_CHILD1 = 0
     STATUS_CHILD2 = 1
     STATUS_CHILD3 = 2
+    STATUS_CHILD_CHILD = 3
 
     name = models.CharField(max_length=255)
     status = models.BigIntegerField()
@@ -49,6 +50,13 @@ class ChildTestModel3(BaseTestModel):
     class BitfieldMeta:
         parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD3),
                          ('parent', 'secondary_status', ParentTestModel.STATUS_CHILD3)]
+
+
+class ChildChildTestModel(BaseTestModel):
+    child = models.ForeignKey('ChildTestModel1', related_name='childchildtestmodels')
+
+    class BitfieldMeta:
+        parent_models = [('child.parent', 'status', ParentTestModel.STATUS_CHILD_CHILD)]
 
 
 class Unrelated(BaseTestModel):

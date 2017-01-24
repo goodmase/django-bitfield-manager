@@ -8,7 +8,19 @@ Tests for `django-bitfield-manager` models module.
 """
 from django.test import TestCase
 
-from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, ChildTestModel3, Unrelated
+from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, ChildTestModel3, Unrelated, ChildChildTestModel
+
+
+class TestMultipleLevelsDeep(TestCase):
+    def setUp(self):
+        p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
+        c = ChildTestModel1.objects.create(parent=p1)
+        c_c = ChildChildTestModel.objects.create(child=c)
+
+    def test_status(self):
+        # should be 1001 or 9
+        p1 = ParentTestModel.objects.get(name='parent1')
+        self.assertEqual(p1.status, 9)
 
 
 class TestWithUnrelatedChildModels(TestCase):

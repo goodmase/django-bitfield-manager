@@ -3,7 +3,7 @@ from bitfield_manager.models import ParentBitfieldModelMixin
 from bitfield import BitField
 
 
-class BaseTestModel(ParentBitfieldModelMixin, models.Model):
+class BaseTestModel(models.Model):
     """
     Base for test models that sets app_label, so they play nicely.
     """
@@ -11,11 +11,7 @@ class BaseTestModel(ParentBitfieldModelMixin, models.Model):
         app_label = 'tests'
         abstract = True
 
-    def save(self, *args, **kwargs):
-        super(BaseTestModel, self).save(*args, **kwargs)
-
-
-class ParentTestModel(BaseTestModel):
+class ParentTestModel(ParentBitfieldModelMixin, BaseTestModel):
 
     STATUS_CHILD1 = 0
     STATUS_CHILD2 = 1

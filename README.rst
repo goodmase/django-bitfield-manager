@@ -35,24 +35,26 @@ Add it to your `INSTALLED_APPS`:
 Usage
 --------
 First you'll need a parent model with a status field
-.. code-block:: python
+.. code-block::
 
     from django.db import models
     from bitfield_manager.models import ParentBitfieldModel
+
+
     class ParentExample(ParentBitfieldModel):
         status = models.BigIntegerField()
 
     def __str__(self):  # __unicode__ on Python 2
-        return "status: %i" % status
+        return "status: %i" % self.status
 
 Then for all models you want django-bitfield-manager to manage add the BitfieldMeta with a list of parent models
-.. code-block:: python
+.. code-block::
 
     class ChildExample(models.Model):
-    parent = models.ForeignKey('ParentExample', null=True)
+        parent = models.ForeignKey('ParentExample', null=True)
 
-    class BitfieldMeta:
-        parent_models = [('parent', 'status', 0)]
+        class BitfieldMeta:
+            parent_models = [('parent', 'status', 0)]
 
 
 The list of parent models takes in a tuple. The first field is the name of the field on the child model that the

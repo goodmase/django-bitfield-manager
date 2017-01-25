@@ -13,10 +13,6 @@ bitfield_manager
 
 Your project description goes here
 
-Documentation
--------------
-
-The full documentation is at https://django-bitfield-manager.readthedocs.io.
 
 Quickstart
 ----------
@@ -36,10 +32,42 @@ Add it to your `INSTALLED_APPS`:
     )
 
 
+Usage
+--------
+First you'll need a parent model with a status field
+.. code-block:: python
+
+    from django.db import models
+    from bitfield_manager.models import ParentBitfieldModel
+    class ParentExample(ParentBitfieldModel):
+        status = models.BigIntegerField()
+
+    def __str__(self):  # __unicode__ on Python 2
+        return "status: %i" % status
+
+Then for all models you want django-bitfield-manager to manage add the BitfieldMeta with a list of parent models
+.. code-block:: python
+
+    class ChildExample(models.Model):
+    parent = models.ForeignKey('ParentExample', null=True)
+
+    class BitfieldMeta:
+        parent_models = [('parent', 'status', 0)]
+
+
+The list of parent models takes in a tuple. The first field is the name of the field on the child model that the
+bitfield-manager should use for modifying the status (should be a foreignkey, have not tested other relationships.) The
+second is the name of the BigIntegerField or BitField (if using django-bitfield) that you want modified. The 3rd field
+is the bitflag to use (i.e. 0 will be 1 << 0, 1 will be 1 << 1, etc.)
+
+
 Features
 --------
 
-* Allows for automatic bitfield management for Django Models
+* Allows for automatic bitfield management for Django Models.
+* Will update the status when models are added or deleted
+* Supports multi-level relationships (use dot syntax)
+* Supports django-bitfield
 
 Running Tests
 -------------

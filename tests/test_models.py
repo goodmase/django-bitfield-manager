@@ -8,14 +8,15 @@ Tests for `django-bitfield-manager` models module.
 """
 from django.test import TestCase
 
-from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, ChildTestModel3, Unrelated, ChildChildTestModel
+from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, ChildTestModel3, \
+    Unrelated, ChildChildTestModel
 
 
 class TestMultipleLevelsDeep(TestCase):
     def setUp(self):
         p1 = ParentTestModel.objects.create(name='parent1', status=0, secondary_status=0)
         c = ChildTestModel1.objects.create(parent=p1)
-        c_c = ChildChildTestModel.objects.create(child=c)
+        ChildChildTestModel.objects.create(child=c)
 
     def test_status(self):
         # should be 1001 or 9
@@ -32,9 +33,11 @@ class TestWithUnrelatedChildModels(TestCase):
     def test_delete(self):
         p1 = ParentTestModel.objects.get(name='parent1')
         self.assertEqual(p1.status, 1)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
         Unrelated.objects.filter(parent=p1).delete()
         p1.force_status_refresh()
         self.assertEqual(p1.status, 1)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
 
 
 class TestWithMultipleParentStatus(TestCase):
@@ -47,6 +50,8 @@ class TestWithMultipleParentStatus(TestCase):
         p1 = ParentTestModel.objects.get(name='parent1')
         self.assertEqual(p1.status, 5)
         self.assertEqual(p1.secondary_status, 4)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+
 
 class TestBitfieldMultiForeignKeys(TestCase):
     def setUp(self):
@@ -66,6 +71,8 @@ class TestBitfieldMultiForeignKeys(TestCase):
 
         self.assertEqual(p1.status, 7)  # flags 111
         self.assertEqual(p2.status, 0)  # flags 000
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+        self.assertEqual(int(p2.bitfield_status), p2.status)
 
     def test_delete_one_but_not_all(self):
         self._base_test()
@@ -76,6 +83,7 @@ class TestBitfieldMultiForeignKeys(TestCase):
         self.assertEqual(ChildTestModel1.objects.filter(parent=p1).count(), 1)
 
     def test_update_force_refresh(self):
+        self._base_test()
         p1 = ParentTestModel.objects.get(name='parent1')
         p2 = ParentTestModel.objects.get(name='parent2')
 
@@ -84,6 +92,8 @@ class TestBitfieldMultiForeignKeys(TestCase):
         p2 = p2.force_status_refresh()
         self.assertEqual(p1.status, 6)
         self.assertEqual(p2.status, 1)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+        self.assertEqual(int(p2.bitfield_status), p2.status)
 
     def test_delete_both(self):
         self._base_test()
@@ -93,6 +103,7 @@ class TestBitfieldMultiForeignKeys(TestCase):
         self.assertEqual(ChildTestModel1.objects.filter(parent=p1).count(), 0)
         p1.force_status_refresh()
         self.assertEqual(p1.status, 6)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
 
     def test_child_counts(self):
         self._base_test()
@@ -120,12 +131,16 @@ class TestBitfieldManager(TestCase):
         self.assertEqual(p2.status, 0)
         self.assertEqual(p2.name, 'parent2')
 
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+        self.assertEqual(int(p2.bitfield_status), p2.status)
+
     def test_model_destory(self):
         p1 = ParentTestModel.objects.get(name='parent1')
         ChildTestModel1.objects.get(parent=p1).delete()
         # self.assertEqual(p1.status, 4)
         p1.refresh_from_db()
         self.assertEqual(p1.status, 4)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
 
     def test_model_switch(self):
         c = ChildTestModel1.objects.get(id=1)
@@ -133,6 +148,8 @@ class TestBitfieldManager(TestCase):
         p2 = ParentTestModel.objects.get(id=2)
         self.assertEqual(p2.status, 0)
         self.assertEqual(p1.status, 5)
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+        self.assertEqual(int(p2.bitfield_status), p2.status)
         c.parent = p2
         c.save()
 
@@ -140,6 +157,8 @@ class TestBitfieldManager(TestCase):
         p2.force_status_refresh(related_models=[ChildTestModel1, ChildTestModel3])
         self.assertEqual(p1.status, 4)  # p1 now only has child 3
         self.assertEqual(p2.status, 1)  # p2 has child 1
+        self.assertEqual(int(p1.bitfield_status), p1.status)
+        self.assertEqual(int(p2.bitfield_status), p2.status)
 
     def test_force_refresh(self):
         p1 = ParentTestModel.objects.get(id=1)

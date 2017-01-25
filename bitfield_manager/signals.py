@@ -3,7 +3,6 @@ from django.dispatch import receiver
 from bitfield_manager import utils
 
 
-
 @receiver(post_save)
 def bitfield_post_save(sender, instance, **kwargs):
     if not hasattr(sender, 'BitfieldMeta'):

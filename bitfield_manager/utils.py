@@ -1,13 +1,28 @@
+try:
+    from bitfield.types import Bit, BitHandler
+except:
+    Bit = None
+    BitHandler = None
+
+
 # AND
 def is_flag_set_for_status(status, flag):
+    # this is because checking for equality on bithandlers will return false
+    # when compared to an int of the same value
+    if BitHandler and type(status) == BitHandler:
+        status = int(status)
     return (status & flag) == flag
 
 
 def is_flag_field_set_for_status(status, flag_field):
+    if Bit and type(flag_field) == Bit:
+        return is_flag_set_for_status(status, flag_field.mask)
     return is_flag_set_for_status(status, (1 << flag_field))
 
 
 def unset_flag_field_for_status(status, flag_field):
+    if Bit and type(flag_field) == Bit:
+        return unset_flag_for_status(status, flag_field.mask)
     return unset_flag_for_status(status, (1 << flag_field))
 
 
@@ -21,6 +36,9 @@ def set_flag_for_status(status, flag):
 
 
 def set_flag_field_for_status(status, flag_field):
+    if Bit and type(flag_field) == Bit:
+        # django-bitfield has the field already shifted
+        return set_flag_for_status(status, flag_field.mask)
     return set_flag_for_status(status, (1 << flag_field))
 
 

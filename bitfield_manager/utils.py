@@ -60,6 +60,8 @@ def get_all_related_bitfield_models(model, all_models=[], search_depth=1, curren
 def get_parent_model(instance, key_string):
     keys = key_string.split('.')
     for key in keys:
+        if key in [f.name for f in instance._meta.many_to_many]:
+            return None
         instance = getattr(instance, key)
     return instance
 

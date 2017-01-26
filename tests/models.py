@@ -1,5 +1,5 @@
 from django.db import models
-from bitfield_manager.models import ParentBitfieldModelMixin
+from bitfield_manager.models import ParentBitfieldModelMixin, ChildBitfieldModelMixin
 from bitfield import BitField
 
 
@@ -35,7 +35,7 @@ class ParentTestModel(ParentBitfieldModelMixin, BaseTestModel):
         return "name: %s status: %i" % (self.name, self.status)
 
 
-class ChildTestModel1(BaseTestModel):
+class ChildTestModel1(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels1', null=True)
 
     class BitfieldMeta:
@@ -43,7 +43,7 @@ class ChildTestModel1(BaseTestModel):
                          ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child1)]
 
 
-class ChildTestModel2(BaseTestModel):
+class ChildTestModel2(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.OneToOneField('ParentTestModel', related_name='childtestmodels2')
 
     class BitfieldMeta:
@@ -51,7 +51,7 @@ class ChildTestModel2(BaseTestModel):
                          ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child2)]
 
 
-class ChildTestModel3(BaseTestModel):
+class ChildTestModel3(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels3')
 
     class BitfieldMeta:
@@ -60,7 +60,7 @@ class ChildTestModel3(BaseTestModel):
                          ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child3)]
 
 
-class ChildChildTestModel(BaseTestModel):
+class ChildChildTestModel(ChildBitfieldModelMixin, BaseTestModel):
     child = models.ForeignKey('ChildTestModel1', related_name='childchildtestmodels')
 
     class BitfieldMeta:
@@ -68,7 +68,7 @@ class ChildChildTestModel(BaseTestModel):
                          ('child.parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_child)]
 
 
-class ChildManyToManyTestModel(BaseTestModel):
+class ChildManyToManyTestModel(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ManyToManyField('ParentTestModel', related_name='childmanytomanytestmodels')
 
     class BitfieldMeta:

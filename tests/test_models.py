@@ -20,6 +20,74 @@ def get_parent(name):
     return ParentTestModel.objects.filter(name=name).first()
 
 
+class TestUnsetFunctionsOnParent(TestCase):
+    def setUp(self):
+        p = create_default_parent('parent1')
+        p.set_flag('status', 2)
+        p.set_flag('status', 0)
+        p.set_flag('bitfield_status', ParentTestModel.bitfield_status.status_child1)
+        p.set_flag('bitfield_status', ParentTestModel.bitfield_status.status_child3, save=True)
+
+    def _base_test(self):
+        p = get_parent('parent1')
+        self.assertEqual(p.status, 5)
+        self.assertEqual(int(p.bitfield_status), 5)
+
+    def test_unset_flag_raw(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.unset_flag('status', 0)
+        self.assertEqual(p.status, 4)
+
+    def test_unset_flag_bitfield(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.unset_flag('bitfield_status', ParentTestModel.bitfield_status.status_child1)
+        self.assertEqual(int(p.bitfield_status), 4)
+
+    def test_unset_flag_mix(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.unset_flag('bitfield_status', 0)
+        p.unset_flag('status', ParentTestModel.bitfield_status.status_child1)
+        self.assertEqual(int(p.bitfield_status), 4)
+        self.assertEqual(p.status, 4)
+
+
+class TestSetFunctionsOnParent(TestCase):
+    def setUp(self):
+        create_default_parent('parent1')
+
+    def _base_test(self):
+        p = get_parent('parent1')
+        self.assertEqual(p.status, 0)
+        self.assertEqual(int(p.bitfield_status), 0)
+
+    def test_set_flag_raw(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.set_flag('status', 2)
+        self.assertEqual(p.status, 4)
+        p.set_flag('status', 0, save=True)
+        self.assertEqual(p.status, 5)
+
+    def test_set_flag_bitfield(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.set_flag('bitfield_status', ParentTestModel.bitfield_status.status_child2)
+        self.assertEqual(int(p.bitfield_status), 2)
+        p.set_flag('bitfield_status', ParentTestModel.bitfield_status.status_child1, save=True)
+        self.assertEqual(int(p.bitfield_status), 3)
+
+    def test_set_flag_mix(self):
+        self._base_test()
+        p = get_parent('parent1')
+        p.set_flag('bitfield_status', 1)
+        p.set_flag('status', ParentTestModel.bitfield_status.status_child2)
+        self.assertEqual(int(p.bitfield_status), 2)
+        self.assertEqual(p.status, 2)
+
+
 class TestM2M(TestCase):
     def setUp(self):
         create_default_parent('parent1')

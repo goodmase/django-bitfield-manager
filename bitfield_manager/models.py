@@ -1,10 +1,27 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+
 from bitfield_manager import utils
 
 
 class ParentBitfieldModelMixin(object):
+    def set_flag(self, status_field, flag, save=False):
+        status_value = getattr(self, status_field)
+        status_value = utils.set_flag_field_for_status(status_value, flag)
+        setattr(self, status_field, status_value)
+        if save:
+            self.save()
+        return self
+
+    def unset_flag(self, status_field, flag, save=False):
+        status_value = getattr(self, status_field)
+        status_value = utils.unset_flag_field_for_status(status_value, flag)
+        setattr(self, status_field, status_value)
+        if save:
+            self.save()
+        return self
+
     def force_status_refresh(self, related_models=None, search_depth=1):
         if not related_models:
             related_models = utils.get_all_related_bitfield_models(self.__class__, search_depth=search_depth)

@@ -42,7 +42,7 @@ class TestUnsetFunctionsOnParent(TestCase):
     def test_unset_flag_bitfield(self):
         self._base_test()
         p = get_parent('parent1')
-        p.unset_flag('bitfield_status', ParentTestModel.bitfield_status.status_child1)
+        p.unset_flag('bitfield_status', ParentTestModel.bitfield_status.status_child1, save=True)
         self.assertEqual(int(p.bitfield_status), 4)
 
     def test_unset_flag_mix(self):

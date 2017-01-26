@@ -5,12 +5,13 @@ from bitfield_manager import utils
 
 
 class ParentBitfieldModelMixin(object):
-    def force_status_refresh(self, related_models=None):
+    def force_status_refresh(self, related_models=None, search_depth=1):
         if not related_models:
-            related_models = utils.get_all_related_bitfield_models(self.__class__)
+            related_models = utils.get_all_related_bitfield_models(self.__class__, search_depth=search_depth)
         for i in related_models:
             parent_models = i.BitfieldMeta.parent_models
             for parent, field, flag in parent_models:
+                parent = parent.replace(".", "__")
                 related_count = i.objects.filter(**{parent: self.id}).count()
                 status_value = getattr(self, field)
                 if related_count == 0 and utils.is_flag_field_set_for_status(status_value, flag):

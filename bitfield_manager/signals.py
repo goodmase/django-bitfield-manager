@@ -25,7 +25,9 @@ def bitfield_post_delete(sender, instance, **kwargs):
 
     parent_models = instance.BitfieldMeta.parent_models
     for parent, field, flag in parent_models:
-        parent_model = getattr(instance, parent)
+        parent_model = utils.get_parent_model(instance, parent)
+        # replace the dot syntac with underscore for getting child count
+        parent = parent.replace('.', '__')
         if parent_model.__class__.__name__ == 'ManyRelatedManager':
             # don't both with m2m on delete
             continue

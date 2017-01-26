@@ -59,7 +59,9 @@ class TestM2M(TestCase):
         p1.childmanytomanytestmodels.clear()
         p1.force_status_refresh()
         self.assertEqual(p1.status, 0)
+        self.assertEqual(int(p1.bitfield_status), 0)
         self.assertEqual(p2.status, 16)
+        self.assertEqual(int(p2.bitfield_status), 16)
 
     def test_delete(self):
         self.test_two_parents()
@@ -84,6 +86,22 @@ class TestMultipleLevelsDeep(TestCase):
         p1 = get_parent('parent1')
         self.assertEqual(p1.status, 9)
 
+    def test_delete(self):
+        p1 = get_parent('parent1')
+        c = ChildChildTestModel.objects.filter(child__parent=p1).first()
+        c.delete()
+        p1.refresh_from_db()
+        self.assertEqual(p1.status, 1)
+
+    def test_multi_model_delete(self):
+        p1 = get_parent('parent1')
+        c = ChildTestModel1.objects.filter(parent=p1).first()
+        cc = ChildChildTestModel.objects.create(child=c)
+        # so we have parent -> child -> 2 child child
+        self.assertEqual(p1.status, 9)
+        ChildChildTestModel.objects.filter(child__parent=p1).delete()
+        p1.force_status_refresh(search_depth=2)
+        self.assertEqual(p1.status, 1)
 
 class TestWithUnrelatedChildModels(TestCase):
     def setUp(self):

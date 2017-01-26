@@ -45,7 +45,7 @@ def set_flag_field_for_status(status, flag_field):
 def get_all_related_bitfield_models(model, all_models=[], search_depth=1, current_level=0):
     # recursive function to get models multiple levels deep
     new_models = [f.related_model for f in model._meta.get_fields() if
-            f.auto_created and not f.concrete and hasattr(f.related_model, 'BitfieldMeta')]
+                  f.auto_created and not f.concrete and hasattr(f.related_model, 'BitfieldMeta')]
     if search_depth == 1:
         return new_models
 

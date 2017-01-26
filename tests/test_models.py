@@ -96,12 +96,13 @@ class TestMultipleLevelsDeep(TestCase):
     def test_multi_model_delete(self):
         p1 = get_parent('parent1')
         c = ChildTestModel1.objects.filter(parent=p1).first()
-        cc = ChildChildTestModel.objects.create(child=c)
+        ChildChildTestModel.objects.create(child=c)
         # so we have parent -> child -> 2 child child
         self.assertEqual(p1.status, 9)
         ChildChildTestModel.objects.filter(child__parent=p1).delete()
         p1.force_status_refresh(search_depth=2)
         self.assertEqual(p1.status, 1)
+
 
 class TestWithUnrelatedChildModels(TestCase):
     def setUp(self):

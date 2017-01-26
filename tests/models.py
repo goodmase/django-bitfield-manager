@@ -11,12 +11,14 @@ class BaseTestModel(models.Model):
         app_label = 'tests'
         abstract = True
 
+
 class ParentTestModel(ParentBitfieldModelMixin, BaseTestModel):
 
     STATUS_CHILD1 = 0
     STATUS_CHILD2 = 1
     STATUS_CHILD3 = 2
     STATUS_CHILD_CHILD = 3
+    STATUS_CHILD_M2M = 4
 
     name = models.CharField(max_length=255)
     status = models.BigIntegerField()
@@ -25,7 +27,8 @@ class ParentTestModel(ParentBitfieldModelMixin, BaseTestModel):
         ('status_child1', 'Status Child 1'),
         ('status_child2', 'Status Child 2'),
         ('status_child3', 'Status Child 3'),
-        ('status_child_child', 'Status Child Child')
+        ('status_child_child', 'Status Child Child'),
+        ('status_child_m2m', 'Status Child M2M')
     ))
 
     def __str__(self):
@@ -41,7 +44,7 @@ class ChildTestModel1(BaseTestModel):
 
 
 class ChildTestModel2(BaseTestModel):
-    parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels2')
+    parent = models.OneToOneField('ParentTestModel', related_name='childtestmodels2')
 
     class BitfieldMeta:
         parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD2),
@@ -63,6 +66,14 @@ class ChildChildTestModel(BaseTestModel):
     class BitfieldMeta:
         parent_models = [('child.parent', 'status', ParentTestModel.STATUS_CHILD_CHILD),
                          ('child.parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_child)]
+
+
+class ChildManyToManyTestModel(BaseTestModel):
+    parent = models.ManyToManyField('ParentTestModel', related_name='childmanytomanytestmodels')
+
+    class BitfieldMeta:
+        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD_M2M),
+                         ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_m2m)]
 
 
 class Unrelated(BaseTestModel):

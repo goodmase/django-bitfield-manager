@@ -11,11 +11,11 @@ def bitfield_post_save(sender, instance, **kwargs):
 
     for parent, field, flag in parent_models:
         parent_model = utils.get_parent_model(instance, parent)
-        status_value = getattr(parent_model, field)
-        if not utils.is_flag_field_set_for_status(status_value, flag):
-            status_value = utils.set_flag_field_for_status(status_value, flag)
-            setattr(parent_model, field, status_value)
-            parent_model.save(update_fields=[field])
+        if parent_model.__class__.__name__ == 'ManyRelatedManager':
+            # don't bother with m2m on save.
+            continue
+        else:
+            utils.check_and_set_flag(parent_model, field, flag)
 
 
 @receiver(post_delete)
@@ -26,6 +26,9 @@ def bitfield_post_delete(sender, instance, **kwargs):
     parent_models = instance.BitfieldMeta.parent_models
     for parent, field, flag in parent_models:
         parent_model = getattr(instance, parent)
+        if parent_model.__class__.__name__ == 'ManyRelatedManager':
+            # don't both with m2m on delete
+            continue
         status_value = getattr(parent_model, field)
         if utils.is_flag_field_set_for_status(status_value, flag):
             # if it is set then check the count of the child model

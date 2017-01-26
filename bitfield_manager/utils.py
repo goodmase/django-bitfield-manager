@@ -43,12 +43,8 @@ def set_flag_field_for_status(status, flag_field):
 
 
 def get_all_related_bitfield_models(model):
-    return [
-        f.related_model for f in model._meta.get_fields()
-        if
-        not (not (f.one_to_many or f.one_to_one) or not f.auto_created) and not f.concrete and hasattr(f.related_model,
-                                                                                                       'BitfieldMeta')
-        ]
+    return [f.related_model for f in model._meta.get_fields() if
+            f.auto_created and not f.concrete and hasattr(f.related_model, 'BitfieldMeta')]
 
 
 def get_parent_model(instance, key_string):
@@ -56,3 +52,11 @@ def get_parent_model(instance, key_string):
     for key in keys:
         instance = getattr(instance, key)
     return instance
+
+
+def check_and_set_flag(parent_model, field, flag):
+    status_value = getattr(parent_model, field)
+    if not is_flag_field_set_for_status(status_value, flag):
+        status_value = set_flag_field_for_status(status_value, flag)
+        setattr(parent_model, field, status_value)
+        parent_model.save(update_fields=[field])

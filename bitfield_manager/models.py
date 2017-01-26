@@ -28,16 +28,15 @@ class ParentBitfieldModelMixin(object):
 class ChildBitfieldModelMixin(object):
     def save(self, *args, **kwargs):
         if not hasattr(self, 'BitfieldMeta'):
+            super(ChildBitfieldModelMixin, self).save(*args, **kwargs)
             return
         parent_models = self.BitfieldMeta.parent_models
 
         for parent, field, flag in parent_models:
             parent_model = utils.get_parent_model(self, parent)
 
-            if parent_model.__class__.__name__ == 'ManyRelatedManager':
+            if not parent_model or parent_model.__class__.__name__ == 'ManyRelatedManager':
                 # don't bother with m2m on save.
-                continue
-            elif not parent_model:
                 continue
             else:
                 utils.check_and_set_flag(parent_model, field, flag)
@@ -45,18 +44,16 @@ class ChildBitfieldModelMixin(object):
 
     def delete(self, *args, **kwargs):
         if not hasattr(self, 'BitfieldMeta'):
-            return
+            return super(ChildBitfieldModelMixin, self).delete(*args, **kwargs)
 
         parent_models = self.BitfieldMeta.parent_models
         for parent, field, flag in parent_models:
             parent_model = utils.get_parent_model(self, parent)
+            if not parent_model or parent_model.__class__.__name__ == 'ManyRelatedManager':
+                # don't bother with m2m on delete
+                continue
             # replace the dot syntac with underscore for getting child count
             parent = parent.replace('.', '__')
-            if parent_model.__class__.__name__ == 'ManyRelatedManager':
-                # don't both with m2m on delete
-                continue
-            elif not parent_model:
-                continue
             status_value = getattr(parent_model, field)
             if utils.is_flag_field_set_for_status(status_value, flag):
                 # if it is set then check the count of the child model
@@ -66,7 +63,7 @@ class ChildBitfieldModelMixin(object):
                     status_value = utils.unset_flag_field_for_status(status_value, flag)
                     setattr(parent_model, field, status_value)
                     parent_model.save(update_fields=[field])
-        super(ChildBitfieldModelMixin, self).delete(*args, **kwargs)
+        return super(ChildBitfieldModelMixin, self).delete(*args, **kwargs)
 
 
 class ParentBitfieldModel(ParentBitfieldModelMixin, models.Model):

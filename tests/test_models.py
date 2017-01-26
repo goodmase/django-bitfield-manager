@@ -114,7 +114,7 @@ class TestWithUnrelatedChildModels(TestCase):
         p1 = get_parent('parent1')
         self.assertEqual(p1.status, 1)
         self.assertEqual(int(p1.bitfield_status), p1.status)
-        Unrelated.objects.filter(parent=p1).delete()
+        Unrelated.objects.filter(parent=p1).first().delete()
         p1.force_status_refresh()
         self.assertEqual(p1.status, 1)
         self.assertEqual(int(p1.bitfield_status), p1.status)

@@ -76,5 +76,5 @@ class ChildManyToManyTestModel(ChildBitfieldModelMixin, BaseTestModel):
                          ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_m2m)]
 
 
-class Unrelated(BaseTestModel):
+class Unrelated(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='unrelatedmodels3')

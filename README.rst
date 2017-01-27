@@ -15,7 +15,7 @@ bitfield_manager
     :target: http://django-bitfield-manager.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Automatic bitfield managment for Django Models. 
+Automatic bitfield management for Django Models. 
 
 
 Quickstart

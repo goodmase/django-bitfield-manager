@@ -27,7 +27,7 @@ Add it to your `INSTALLED_APPS`:
 
     INSTALLED_APPS = (
         ...
-        'bitfield_manager.apps.BitfieldManagerConfig',
+        'bitfield_manager',
         ...
     )
 
@@ -61,7 +61,7 @@ is the bitflag to use (i.e. 0 will be 1 << 0, 1 will be 1 << 1, etc.)
 
         class BitfieldMeta:
             parent_models = [('parent', 'status', 0)]
-            
+
     class ChildExample2(ChildBitfieldModelMixin, models.Model):
         parent = models.ForeignKey('ParentExample', null=True)
 
@@ -77,25 +77,25 @@ Now when creating/deleting child models the parent status should update
     p2 = ParentExample.objects.create(status=0)
     # add a child p.status is now 1
     c1 = ChildExample1.objects.create(parent=p)
-    
+
     # add the other child. p.status is now 3
     c2 = ChildExample2.objects.create(parent=p)
-    
+
     # deleting a child will refresh the status. p.status is now 2
     c1.delete()
-    
+
     # updates or mass deletes will require manual refresh
     # p.status will be 2 and p2.status will be 0
     ChildExample2.objects.filter(parent=p).update(parent=p2)
-    
+
     # trigger a manual refresh. p.status is now correct with a status of 0
     p.force_status_refresh()
-    
+
     # if you know the related models modified you can specify them
     # p2.status is now 2
     p2.force_status_refresh(related_models=[ChildExample2])
-    
-    # force status refresh will work with models multiple levels deep. Specify the search_depth to search 
+
+    # force status refresh will work with models multiple levels deep. Specify the search_depth to search
     # more than 1 level deep
     p2.force_status_refresh(search_depth=2)
 

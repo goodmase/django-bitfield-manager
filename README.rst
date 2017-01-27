@@ -11,7 +11,11 @@ bitfield_manager
 .. image:: https://codecov.io/gh/goodmase/django-bitfield-manager/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/goodmase/django-bitfield-manager
 
-Your project description goes here
+.. image:: https://readthedocs.org/projects/django-bitfield-manager/badge/?version=latest
+    :target: http://django-bitfield-manager.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+Automatic bitfield managment for Django Models. 
 
 
 Quickstart

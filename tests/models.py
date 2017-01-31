@@ -39,46 +39,46 @@ class ChildTestModel1(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels1', null=True)
 
     class BitfieldMeta:
-        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD1),
-                         ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child1)]
+        parent_models = [('parent.status', ParentTestModel.STATUS_CHILD1),
+                         ('parent.bitfield_status', ParentTestModel.bitfield_status.status_child1)]
 
 
 class ChildTestModel2(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.OneToOneField('ParentTestModel', related_name='childtestmodels2')
 
     class BitfieldMeta:
-        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD2),
-                         ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child2)]
+        parent_models = [('parent.status', ParentTestModel.STATUS_CHILD2),
+                         ('parent.bitfield_status', ParentTestModel.bitfield_status.status_child2)]
 
 
 class ChildTestModel3(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ForeignKey('ParentTestModel', related_name='childtestmodels3')
 
     class BitfieldMeta:
-        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD3),
-                         ('parent', 'secondary_status', ParentTestModel.STATUS_CHILD3),
-                         ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child3)]
+        parent_models = [('parent.status', ParentTestModel.STATUS_CHILD3),
+                         ('parent.secondary_status', ParentTestModel.STATUS_CHILD3),
+                         ('parent.bitfield_status', ParentTestModel.bitfield_status.status_child3)]
 
 
 class ChildChildTestModel(ChildBitfieldModelMixin, BaseTestModel):
     child = models.ForeignKey('ChildTestModel1', related_name='childchildtestmodels')
 
     class BitfieldMeta:
-        parent_models = [('child.parent', 'status', ParentTestModel.STATUS_CHILD_CHILD),
-                         ('child.parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_child)]
+        parent_models = [('child.parent.status', ParentTestModel.STATUS_CHILD_CHILD),
+                         ('child.parent.bitfield_status', ParentTestModel.bitfield_status.status_child_child)]
 
 
 class ChildManyToManyTestModel(ChildBitfieldModelMixin, BaseTestModel):
     parent = models.ManyToManyField('ParentTestModel', related_name='childmanytomanytestmodels')
 
     class BitfieldMeta:
-        parent_models = [('parent', 'status', ParentTestModel.STATUS_CHILD_M2M),
-                         ('parent', 'bitfield_status', ParentTestModel.bitfield_status.status_child_m2m)]
+        parent_models = [('parent.status', ParentTestModel.STATUS_CHILD_M2M),
+                         ('parent.bitfield_status', ParentTestModel.bitfield_status.status_child_m2m)]
 
 
 class BrokenChildTestModel(ChildBitfieldModelMixin, BaseTestModel):
     class BitfieldMeta:
-        parent_models = [('badparent', 'status', 0)]
+        parent_models = [('badparent.status', 0)]
 
 
 class Unrelated(ChildBitfieldModelMixin, BaseTestModel):

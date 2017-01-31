@@ -1,6 +1,8 @@
 from django.test import TestCase
 from bitfield_manager import utils
 from bitfield.types import Bit, BitHandler
+from .models import ChildTestModel1, ParentTestModel
+from .test_models import create_default_parent
 
 
 class TestBitfieldUtilWithDjangoBitfield(TestCase):
@@ -107,3 +109,31 @@ class TestBitfieldUtil(TestCase):
         self.assertEqual(utils.is_flag_field_set_for_status(s1, 2), False)
         self.assertEqual(utils.is_flag_field_set_for_status(s1, 1), True)
         self.assertEqual(utils.is_flag_field_set_for_status(s1, 0), True)
+
+
+class TestStringUtils(TestCase):
+    def test_get_field_from_source(self):
+        source = "parent.status"
+        field = utils.get_field_from_source(source)
+        self.assertEqual(field, "status")
+
+        source = "parent.child.status"
+        field = utils.get_field_from_source(source)
+        self.assertEqual(field, "status")
+
+    def test_get_django_qs(self):
+        source = "parent.status"
+        qs = utils.get_django_query_string_from_source(source)
+        self.assertEqual(qs, "parent")
+
+        source = "parent.child.child.status"
+        qs = utils.get_django_query_string_from_source(source)
+        self.assertEqual(qs, "parent__child__child")
+
+
+class TestGetModel(TestCase):
+    def test_get_parent(self):
+        p = create_default_parent('parent1')
+        c = ChildTestModel1.objects.create(parent=p)
+        parent = utils.get_parent_model(c, "parent.status")
+        self.assertEqual(isinstance(parent, ParentTestModel), True)

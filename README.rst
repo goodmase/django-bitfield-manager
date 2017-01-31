@@ -15,7 +15,7 @@ bitfield_manager
     :target: http://django-bitfield-manager.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Automatic bitfield management for Django Models. 
+Automatic bitfield management for Django Models.
 
 
 Quickstart
@@ -53,9 +53,8 @@ First you'll need a parent model with a status field
         return "status: %i" % self.status
 
 Then for all models you want django-bitfield-manager to manage add the BitfieldMeta with a list of parent models.
-The list of parent models takes in a tuple. The first field is the name of the field on the child model that the
-bitfield-manager should use for modifying the status (should be a foreignkey, have not tested other relationships.) The
-second is the name of the BigIntegerField or BitField (if using django-bitfield) that you want modified. The 3rd field
+The list of parent models takes in a tuple. The first field is the source that will be modified. The
+source should be a BigIntegerField or BitField (if using django-bitfield). The 2nd field
 is the bitflag to use (i.e. 0 will be 1 << 0, 1 will be 1 << 1, etc.)
 
 .. code-block:: python
@@ -70,7 +69,7 @@ is the bitflag to use (i.e. 0 will be 1 << 0, 1 will be 1 << 1, etc.)
         parent = models.ForeignKey('ParentExample', null=True)
 
         class BitfieldMeta:
-            parent_models = [('parent', 'status', 1)]
+            parent_models = [('parent.status', 1)]
 
 Now when creating/deleting child models the parent status should update
 

@@ -2,6 +2,12 @@
 
 History
 -------
+0.3.0 (2017-01-31)
+++++++++++++++++++
+* Added example
+* Changed the parent_models models tuple from ('parent', 'child', 0) to ('parent.child', 0)
+* additional unit tests
+* bug fixes
 
 0.2.0 (2017-01-27)
 ++++++++++++++++++

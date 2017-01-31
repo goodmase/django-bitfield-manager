@@ -28,7 +28,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 
 lint: ## check style with flake8
-	flake8 bitfield_manager tests
+	flake8 bitfield_manager tests example
 
 test: ## run tests quickly with the default Python
 	python runtests.py tests

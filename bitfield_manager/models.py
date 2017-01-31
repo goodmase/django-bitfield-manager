@@ -27,9 +27,10 @@ class ParentBitfieldModelMixin(object):
             related_models = utils.get_all_related_bitfield_models(self.__class__, search_depth=search_depth)
         for i in related_models:
             parent_models = i.BitfieldMeta.parent_models
-            for parent, field, flag in parent_models:
-                parent = parent.replace(".", "__")
-                related_count = i.objects.filter(**{parent: self.id}).count()
+            for source, flag in parent_models:
+                field = utils.get_field_from_source(source)
+                qs = utils.get_django_query_string_from_source(source)
+                related_count = i.objects.filter(**{qs: self.id}).count()
                 status_value = getattr(self, field)
                 if related_count == 0 and utils.is_flag_field_set_for_status(status_value, flag):
                     status_value = utils.unset_flag_field_for_status(status_value, flag)
@@ -49,8 +50,9 @@ class ChildBitfieldModelMixin(object):
             return
         parent_models = self.BitfieldMeta.parent_models
 
-        for parent, field, flag in parent_models:
-            parent_model = utils.get_parent_model(self, parent)
+        for source, flag in parent_models:
+            field = utils.get_field_from_source(source)
+            parent_model = utils.get_parent_model(self, source)
             if not parent_model:
                 # if not parent model skip
                 continue
@@ -63,18 +65,19 @@ class ChildBitfieldModelMixin(object):
             return super(ChildBitfieldModelMixin, self).delete(*args, **kwargs)
 
         parent_models = self.BitfieldMeta.parent_models
-        for parent, field, flag in parent_models:
-            parent_model = utils.get_parent_model(self, parent)
+        for source, flag in parent_models:
+            field = utils.get_field_from_source(source)
+            parent_model = utils.get_parent_model(self, source)
             if not parent_model:
                 # if no parent model skip
                 continue
             # replace the dot syntac with underscore for getting child count
-            parent = parent.replace('.', '__')
             status_value = getattr(parent_model, field)
             if utils.is_flag_field_set_for_status(status_value, flag):
                 # if it is set then check the count of the child model
                 # if only 1 or less left unset the flag
-                child_count = self.__class__.objects.filter(**{parent: parent_model.id}).count()
+                qs = utils.get_django_query_string_from_source(source)
+                child_count = self.__class__.objects.filter(**{qs: parent_model.id}).count()
                 if child_count <= 1:
                     status_value = utils.unset_flag_field_for_status(status_value, flag)
                     setattr(parent_model, field, status_value)

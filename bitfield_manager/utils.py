@@ -57,9 +57,17 @@ def get_all_related_bitfield_models(model, all_models=[], search_depth=1, curren
     return all_models
 
 
+def get_field_from_source(source):
+    return source.split('.')[-1]
+
+
+def get_django_query_string_from_source(source):
+    return "__".join(source.split(".")[:-1])
+
+
 def get_parent_model(instance, key_string):
     keys = key_string.split('.')
-    for key in keys:
+    for key in keys[:-1]:
         if key in [f.name for f in instance._meta.many_to_many]:
             return None
         instance = getattr(instance, key)

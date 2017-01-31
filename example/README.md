@@ -13,12 +13,18 @@ To run this example, follow these instructions:
 		
 3. Make and apply migrations
 
-		python manage.py makemigrations
+		python manage.py makemigrations example
 		
 		python manage.py migrate
-		
-4. Run the server
+
+4. Create super user
+
+		python manage.py createsuperuser
+
+5. Run the server
 
 		python manage.py runserver
 		
-5. Access from the browser at `http://127.0.0.1:8000`
+6. Access from the browser at `http://127.0.0.1:8000/admin/`
+
+7. Add/Remove models and see how the status of the Person model changes.

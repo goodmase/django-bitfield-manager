@@ -9,7 +9,7 @@ Tests for `django-bitfield-manager` models module.
 from django.test import TestCase
 
 from tests.models import ParentTestModel, ChildTestModel1, ChildTestModel2, ChildTestModel3, \
-    Unrelated, ChildChildTestModel, ChildManyToManyTestModel
+    Unrelated, ChildChildTestModel, ChildManyToManyTestModel, BrokenChildTestModel
 
 
 def create_default_parent(name):
@@ -18,6 +18,12 @@ def create_default_parent(name):
 
 def get_parent(name):
     return ParentTestModel.objects.filter(name=name).first()
+
+
+class TestBrokenChildModel(TestCase):
+    def test_parent_not_found(self):
+        with self.assertRaises(AttributeError) as e:  # noqa: F841
+            BrokenChildTestModel.objects.create()
 
 
 class TestUnsetFunctionsOnParent(TestCase):
@@ -103,6 +109,17 @@ class TestM2M(TestCase):
         p1.force_status_refresh()
         self.assertEqual(p1.status, 16)  # only 4th flag set
         self.assertEqual(p2.status, 0)
+
+    def test_one_parent_delete(self):
+        p1 = get_parent('parent1')
+        self.assertEqual(p1.status, 0)
+        c = ChildManyToManyTestModel.objects.create()
+        c.parent.add(p1)
+        p1.force_status_refresh()
+        self.assertEqual(p1.status, 16)  # only 4th flag set
+        c.delete()
+        p1.force_status_refresh()
+        self.assertEqual(p1.status, 0)  # no flags set
 
     def test_two_parents(self):
         p1 = get_parent('parent1')
@@ -281,6 +298,16 @@ class TestBitfieldManager(TestCase):
 
         self.assertEqual(int(p1.bitfield_status), p1.status)
         self.assertEqual(int(p2.bitfield_status), p2.status)
+
+    def test_manual_status_set(self):
+        p1 = get_parent('parent1')
+        self.assertEqual(p1.status, 5)
+        ParentTestModel.objects.filter(id=p1.id).update(status=4)  # so it is like ChildTestModel1 is unset
+        p1.refresh_from_db()
+        self.assertEqual(p1.status, 4)
+        ChildTestModel1.objects.get(parent=p1).delete()
+        p1.refresh_from_db()  # status does not change
+        self.assertEqual(p1.status, 4)
 
     def test_model_destory(self):
         p1 = get_parent('parent1')

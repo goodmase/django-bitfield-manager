@@ -44,30 +44,29 @@ class ParentBitfieldModelMixin(object):
 
 class ChildBitfieldModelMixin(object):
     def save(self, *args, **kwargs):
-        if not hasattr(self, 'BitfieldMeta'):
+        if not getattr(self, 'BitfieldMeta', None):
             super(ChildBitfieldModelMixin, self).save(*args, **kwargs)
             return
         parent_models = self.BitfieldMeta.parent_models
 
         for parent, field, flag in parent_models:
             parent_model = utils.get_parent_model(self, parent)
-
-            if not parent_model or parent_model.__class__.__name__ == 'ManyRelatedManager':
-                # don't bother with m2m on save.
+            if not parent_model:
+                # if not parent model skip
                 continue
             else:
                 utils.check_and_set_flag(parent_model, field, flag)
         super(ChildBitfieldModelMixin, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        if not hasattr(self, 'BitfieldMeta'):
+        if not getattr(self, 'BitfieldMeta', None):
             return super(ChildBitfieldModelMixin, self).delete(*args, **kwargs)
 
         parent_models = self.BitfieldMeta.parent_models
         for parent, field, flag in parent_models:
             parent_model = utils.get_parent_model(self, parent)
-            if not parent_model or parent_model.__class__.__name__ == 'ManyRelatedManager':
-                # don't bother with m2m on delete
+            if not parent_model:
+                # if no parent model skip
                 continue
             # replace the dot syntac with underscore for getting child count
             parent = parent.replace('.', '__')

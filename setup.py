@@ -47,7 +47,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-bitfield-manager',
     version=version,
-    description="""Your project description goes here""",
+    description="""Automatically manage bitfields in django models""",
     long_description=readme + '\n\n' + history,
     author='Stephen Goodman',
     author_email='stephen.goodman@gmail.com',
